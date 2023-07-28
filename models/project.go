@@ -5,7 +5,6 @@ type Project struct {
 	Name     string `db:"name"`
 	IsPublic bool   `db:"is_public"`
 	ColorTag string `db:"color_tag"`
-	UserID   string `db:"user_id"`
 	Users    []User `gorm:"many2many:project_users;"` // Intermediate table name: project_users
 }
 
