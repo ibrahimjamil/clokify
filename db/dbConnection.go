@@ -1,13 +1,14 @@
 package db
 
 import (
-	. "clokify/types"
+	. "clokify/config"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-func DbConnection(config *Config) (*gorm.DB, error) {
+func DbConnection() (*gorm.DB, error) {
+	var config = EnvConfig()
 	dbEnvs := "host=" + config.Host +
 		" port=" + config.Port +
 		" user=" + config.User +
