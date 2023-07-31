@@ -31,6 +31,7 @@ func (ps *ProjectServiceManager) CreateProject(project *Project, srv *ServiceMan
 	if res.Error != nil {
 		return errors.New("project not create successfully"), false
 	}
+
 	return nil, true
 }
 
@@ -60,6 +61,8 @@ func (ps *ProjectServiceManager) DeleteProject(id int) (error, Project) {
 		return errors.New("didnt get project"), Project{}
 	}
 
+	// here transaction is used for the purpose of chaining some queries that
+	// we dont want to execute if one of the query in between begin and commit fails.
 	tx := ps.Db.Begin()
 
 	if err := tx.First(&project, &Project{ID: fetchedProject.ID}).Error; err != nil {
