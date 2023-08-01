@@ -11,23 +11,30 @@ type ProjectServiceManager struct {
 	*ServiceManager
 }
 
-func (ps *ProjectServiceManager) CreateProject(project *Project, srv *ServiceManager) (error, bool) {
+func (ps *ProjectServiceManager) CreateProject(project *ProjectCreateType, userId int, srv *ServiceManager) (error, bool) {
 	userService := &UserServiceManager{
 		ServiceManager: srv,
 	}
 
-	err, user := userService.GetUser(1)
+	err, user := userService.GetUser(userId)
 	if err != nil {
-		log.Fatal("user not found for given id to create project")
+		return errors.New("user not found for given id to create project"), false
 	}
-	project.Users = append(project.Users, user)
 
-	projectErr, _ := ps.GetProjectByName(project.Name)
+	DemoProject := &Project{
+		ID:       project.ID,
+		Name:     project.Name,
+		IsPublic: project.IsPublic,
+		ColorTag: project.ColorTag,
+	}
+	DemoProject.Users = append(DemoProject.Users, user)
+
+	projectErr, _ := ps.GetProjectByName(DemoProject.Name)
 	if projectErr == nil {
 		return errors.New("project already exists"), false
 	}
 
-	res := ps.Db.Model(&Project{}).Create(&project)
+	res := ps.Db.Model(&Project{}).Create(&DemoProject)
 	if res.Error != nil {
 		return errors.New("project not create successfully"), false
 	}
@@ -46,7 +53,7 @@ func (ps *ProjectServiceManager) GetProjectByName(name string) (error, Project) 
 
 func (ps *ProjectServiceManager) GetProject(id int) (error, Project) {
 	var project Project
-	if err := ps.Db.Model(&project).Where("id = ?", id).First(&project); err.Error != nil {
+	if err := ps.Db.Model(&project).Preload("Users").Where("id = ?", id).First(&project); err.Error != nil {
 		return errors.New("didnt find project"), Project{}
 	}
 

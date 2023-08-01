@@ -2,31 +2,46 @@ package main
 
 import (
 	. "clokify/db"
-	. "clokify/types"
-	. "clokify/utils/cruds"
+	routes "clokify/routes"
 	"log"
 
+	. "clokify/config"
+
+	. "clokify/middlewares"
+
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
 func main() {
+
+	// loading env
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Panic("Failed to load env variables")
 	}
 
+	// db connection
 	db, err := DbConnection()
 	if err != nil {
 		log.Panic("Could not initialize the database")
 	}
 
-	// init global service manager each service will extend that
-	srvMananger := &ServiceManager{
-		Db: db,
+	// assign port number
+	AppPort := EnvConfig().AppPort
+	if AppPort == "" {
+		AppPort = "8000"
 	}
 
-	// can uncomment delete user to check project creation scenario
-	UserCrud(db, srvMananger)
-	ProjectCrud(db, srvMananger)
-	TaskCrud(db, srvMananger)
+	// making router with gin package
+	router := gin.New()
+	router.Use(gin.Logger())
+
+	// un auth and auth routes
+	routes.UnAuthRoutes(router, db)
+	router.Use(AuthMiddleware())
+	routes.AuthRoutes(router, db)
+
+	// app running on port
+	router.Run(":" + AppPort)
 }

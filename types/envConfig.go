@@ -7,4 +7,5 @@ type Config struct {
 	Password  string
 	DBName    string
 	JwtSecret string
+	AppPort   string
 }

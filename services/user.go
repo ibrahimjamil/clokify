@@ -127,7 +127,7 @@ func (s *UserServiceManager) DeleteUser(email string, srv *ServiceManager) (erro
 
 func (s *UserServiceManager) GetUser(id int) (error, User) {
 	var user User
-	if err := s.Db.Model(&user).Where("id = ?", id).First(&user); err.Error != nil {
+	if err := s.Db.Model(&user).Preload("Projects").Where("id = ?", id).First(&user); err.Error != nil {
 		return errors.New("didnt find user"), User{}
 	}
 
@@ -136,7 +136,7 @@ func (s *UserServiceManager) GetUser(id int) (error, User) {
 
 func (s *UserServiceManager) GetUserByEmail(email string) (error, User) {
 	var user User
-	if err := s.Db.Model(&user).Where("email = ?", email).First(&user); err.Error != nil {
+	if err := s.Db.Model(&user).Preload("Projects").Where("email = ?", email).First(&user); err.Error != nil {
 		return errors.New("didnt find user"), User{}
 	}
 

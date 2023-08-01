@@ -16,13 +16,13 @@ func ProjectCrud(db *gorm.DB, srvMan *ServiceManager) {
 	}
 
 	// create project
-	project := &Project{
+	project := &ProjectCreateType{
 		ID:       1,
 		Name:     "Enxys",
 		IsPublic: true,
 		ColorTag: "#fffff",
 	}
-	err, projectRes := projectService.CreateProject(project, srvMan)
+	err, projectRes := projectService.CreateProject(project, 1, srvMan)
 
 	if err == nil {
 		log.Println("project created succesfully", projectRes)

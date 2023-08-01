@@ -4,7 +4,6 @@ import (
 	. "clokify/models"
 	. "clokify/services"
 	"log"
-	"time"
 
 	. "clokify/types"
 
@@ -17,11 +16,10 @@ func TaskCrud(db *gorm.DB, srvMan *ServiceManager) {
 	}
 
 	// create task
-	task := &Task{
+	task := &TaskCreateType{
 		ID:          1,
 		Description: "Enxsys task",
 		IsBillable:  true,
-		StartAt:     time.Date(2023, 07, 30, 12, 30, 0, 0, time.Now().Local().Location()),
 	}
 	err, taskRes := taskService.CreateTask(task, srvMan)
 

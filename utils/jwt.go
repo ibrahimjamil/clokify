@@ -25,7 +25,7 @@ func GenerateJWTToken(email string) (string, error) {
 	return signedToken, nil
 }
 
-func ParseJWTToken(signedToken string) (jwt.MapClaims, error) {
+func ParseJWTToken(signedToken string) (jwt.MapClaims, bool, error) {
 	token, err := jwt.Parse(signedToken, func(token *jwt.Token) (interface{}, error) {
 		// Validate the signing method
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -35,13 +35,13 @@ func ParseJWTToken(signedToken string) (jwt.MapClaims, error) {
 		return []byte(EnvConfig().JwtSecret), nil
 	})
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 
 	// Check if the token is valid and not expired
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		return claims, nil
+		return claims, token.Valid, nil
 	} else {
-		return nil, fmt.Errorf("invalid token")
+		return nil, false, fmt.Errorf("invalid token")
 	}
 }

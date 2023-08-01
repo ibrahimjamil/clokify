@@ -19,3 +19,11 @@ type User struct {
 func GetUserStruct() *User {
 	return &User{}
 }
+
+type UserRegistrationType struct {
+	ID       int      `json:"id" binding:"required"`
+	Name     string   `json:"name" binding:"required"`
+	Email    string   `json:"email" binding:"required"`
+	Password string   `json:"password" binding:"required"`
+	Type     UserType `sql:"type:ENUM('DEVELOPER', 'CLIENT')" gorm:"column:user_type"`
+}

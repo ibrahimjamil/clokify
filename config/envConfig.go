@@ -13,5 +13,6 @@ func EnvConfig() *Config {
 		User:      os.Getenv("DB_USER"),
 		Password:  os.Getenv("DB_PASSWORD"),
 		JwtSecret: os.Getenv("JWT_SECRET"),
+		AppPort:   os.Getenv("APP_PORT"),
 	}
 }
