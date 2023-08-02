@@ -40,10 +40,11 @@ func Register(srvMananger *ServiceManager, db *gorm.DB) gin.HandlerFunc {
 		if err == nil {
 			log.Println("user created successfully", userRes)
 			ctx.JSON(200, gin.H{"success": "user registered successfully"})
-		} else {
-			log.Println(err)
-			ctx.JSON(400, gin.H{"success": "user didnt registered successfully some issue in creating user"})
+			return
 		}
+
+		log.Println(err)
+		ctx.JSON(400, gin.H{"success": "user didnt registered successfully some issue in creating user"})
 	}
 }
 
@@ -76,10 +77,11 @@ func Login(srvMananger *ServiceManager, db *gorm.DB) gin.HandlerFunc {
 				"success": "user login successfully",
 				"token":   userRes,
 			})
-		} else {
-			log.Println(err)
-			ctx.JSON(400, gin.H{"error": "user didnt login successfully some issue in login user"})
+			return
 		}
+
+		log.Println(err)
+		ctx.JSON(400, gin.H{"error": "user didnt login successfully some issue in login user"})
 	}
 }
 
@@ -88,7 +90,9 @@ func GetUser(srvMananger *ServiceManager, db *gorm.DB) gin.HandlerFunc {
 		userId := ctx.Param("userId")
 		id, err := strconv.Atoi(userId)
 		if err != nil {
-			panic(err)
+			ctx.JSON(400, gin.H{
+				"error": "some error in userId string to int conversion",
+			})
 		}
 
 		userService := &UserServiceManager{
@@ -102,11 +106,11 @@ func GetUser(srvMananger *ServiceManager, db *gorm.DB) gin.HandlerFunc {
 				"success": "user fetched succesfully",
 				"Project": getUser,
 			})
-		} else {
-			log.Println(err, getUser)
-			ctx.JSON(400, gin.H{
-				"error": "error in getting user",
-			})
+			return
 		}
+
+		ctx.JSON(400, gin.H{
+			"error": "error in getting user",
+		})
 	}
 }

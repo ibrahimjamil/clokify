@@ -36,16 +36,17 @@ func CreateProject(srvMananger *ServiceManager, db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		err, projectRes := projectService.CreateProject(&project, project.UserId, srvMananger)
+		err, projectRes := projectService.CreateProject(&project, srvMananger)
 		if err == nil {
 			log.Println("project created succesfully", projectRes)
 			ctx.JSON(200, gin.H{"success": "project created succesfully"})
-		} else {
-			ctx.JSON(400, gin.H{
-				"error":  "project didnt created succesfully",
-				"reason": err.Error(),
-			})
+			return
 		}
+
+		ctx.JSON(400, gin.H{
+			"error":  "project didnt created succesfully",
+			"reason": err.Error(),
+		})
 	}
 }
 
@@ -69,12 +70,12 @@ func GetProject(srvMananger *ServiceManager, db *gorm.DB) gin.HandlerFunc {
 				"success": "project created succesfully",
 				"Project": getProject,
 			})
-		} else {
-			log.Println(err, getProject)
-			ctx.JSON(400, gin.H{
-				"error": "error in getting project",
-			})
 		}
+
+		log.Println(err, getProject)
+		ctx.JSON(400, gin.H{
+			"error": "error in getting project",
+		})
 	}
 }
 
@@ -98,11 +99,11 @@ func DeleteProject(srvMananger *ServiceManager, db *gorm.DB) gin.HandlerFunc {
 				"success": "project deleted succesfully",
 				"Project": getProject,
 			})
-		} else {
-			log.Println(err, getProject)
-			ctx.JSON(400, gin.H{
-				"error": "error in deleting project",
-			})
 		}
+
+		log.Println(err, getProject)
+		ctx.JSON(400, gin.H{
+			"error": "error in deleting project",
+		})
 	}
 }

@@ -11,12 +11,12 @@ type ProjectServiceManager struct {
 	*ServiceManager
 }
 
-func (ps *ProjectServiceManager) CreateProject(project *ProjectCreateType, userId int, srv *ServiceManager) (error, bool) {
+func (ps *ProjectServiceManager) CreateProject(project *ProjectCreateType, srv *ServiceManager) (error, bool) {
 	userService := &UserServiceManager{
 		ServiceManager: srv,
 	}
 
-	err, user := userService.GetUser(userId)
+	err, user := userService.GetUser(project.UserId)
 	if err != nil {
 		return errors.New("user not found for given id to create project"), false
 	}
