@@ -21,8 +21,9 @@ func ProjectCrud(db *gorm.DB, srvMan *ServiceManager) {
 		Name:     "Enxys",
 		IsPublic: true,
 		ColorTag: "#fffff",
+		UserId:   1,
 	}
-	err, projectRes := projectService.CreateProject(project, 1, srvMan)
+	err, projectRes := projectService.CreateProject(project, srvMan)
 
 	if err == nil {
 		log.Println("project created succesfully", projectRes)

@@ -35,12 +35,13 @@ func GetTask(srvMananger *ServiceManager, db *gorm.DB) gin.HandlerFunc {
 				"success": "task fetched succesfully",
 				"Task":    getTask,
 			})
-		} else {
-			log.Println(err, getTask)
-			ctx.JSON(400, gin.H{
-				"error": "error in getting task",
-			})
+			return
 		}
+
+		log.Println(err, getTask)
+		ctx.JSON(400, gin.H{
+			"error": "error in getting task",
+		})
 	}
 }
 
@@ -64,12 +65,13 @@ func DeleteTask(srvMananger *ServiceManager, db *gorm.DB) gin.HandlerFunc {
 				"success": "task deleted succesfully",
 				"Task":    getTask,
 			})
-		} else {
-			log.Println(err, getTask)
-			ctx.JSON(400, gin.H{
-				"error": "error in deleting task",
-			})
+			return
 		}
+
+		log.Println(err, getTask)
+		ctx.JSON(400, gin.H{
+			"error": "error in deleting task",
+		})
 	}
 }
 
@@ -100,11 +102,12 @@ func CreateTask(srvMananger *ServiceManager, db *gorm.DB) gin.HandlerFunc {
 		if err == nil {
 			log.Println("task created succesfully", projectRes)
 			ctx.JSON(200, gin.H{"success": "task created succesfully"})
-		} else {
-			ctx.JSON(400, gin.H{
-				"error":  "task didnt created succesfully",
-				"reason": err.Error(),
-			})
+			return
 		}
+
+		ctx.JSON(400, gin.H{
+			"error":  "task didnt created succesfully",
+			"reason": err.Error(),
+		})
 	}
 }

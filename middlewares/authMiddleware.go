@@ -20,16 +20,11 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		_, isValidToken, err := ParseJWTToken(token[1])
-		if err != nil {
+		if err == nil && isValidToken {
+			ctx.Next()
+		} else if err != nil {
 			ctx.JSON(401, gin.H{
 				"error": "Unauthorized. token mismatch",
-			})
-			return
-		} else if isValidToken {
-			ctx.Next()
-		} else {
-			ctx.JSON(401, gin.H{
-				"error": "some issue with token",
 			})
 			return
 		}
