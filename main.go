@@ -3,6 +3,7 @@ package main
 import (
 	. "clokify/db"
 	routes "clokify/routes"
+	"fmt"
 	"log"
 
 	. "clokify/config"
@@ -28,6 +29,7 @@ func main() {
 	}
 
 	// assign port number
+	fmt.Print(EnvConfig().AppPort, EnvConfig().DBName, EnvConfig().Host)
 	AppPort := EnvConfig().AppPort
 	if AppPort == "" {
 		AppPort = "8000"

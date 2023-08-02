@@ -1,0 +1,45 @@
+version: '3.7'
+
+services:
+  postgres:
+    container_name: clokify-db
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - '5432:5432'
+    networks:
+      - backend
+    volumes:
+      - clokify-db:/var/lib/postgresql/data
+
+  clokify:
+    container_name: clokify
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      PGHOST: postgres
+      PGUSER: ${DB_NAME}
+      PGPASSWORD: ${DB_PASSWORD}
+      APP_PORT: ${APP_PORT}
+      JWT_SECRET: ${JWT_SECRET}
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    links:
+      - postgres
+    networks:
+      - backend
+
+volumes:
+  clokify-db:
+    driver: local
+
+networks:
+  backend:
+    driver: bridge

@@ -12,5 +12,8 @@ postgres
 see original app here
 https://clockify.me/
 
-# development start
+# development start locally
 go run main.go
+
+# development start on docker
+docker-compose -f docker-compose.yml --env-file .env up -d --build  
