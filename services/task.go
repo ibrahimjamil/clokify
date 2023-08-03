@@ -5,18 +5,20 @@ import (
 	. "clokify/types"
 	"errors"
 	"fmt"
-	"log"
 	"strconv"
+	"sync"
 )
 
 type TaskServiceManager struct {
 	*ServiceManager
 }
 
+type TaskResult struct {
+	err  error
+	task Task
+}
+
 func (ts *TaskServiceManager) CreateTask(task *TaskCreateType, srv *ServiceManager) (error, bool) {
-	taskService := &TaskServiceManager{
-		ServiceManager: srv,
-	}
 
 	userService := &UserServiceManager{
 		ServiceManager: srv,
@@ -26,33 +28,74 @@ func (ts *TaskServiceManager) CreateTask(task *TaskCreateType, srv *ServiceManag
 		ServiceManager: srv,
 	}
 
-	fmt.Print(task)
+	taskService := &TaskServiceManager{
+		ServiceManager: srv,
+	}
+
 	userID, err := strconv.Atoi(task.UserId)
 	if err != nil {
-		panic(err)
+		return errors.New("userId issue"), false
 	}
 
-	err, user := userService.GetUser(userID)
-	if err != nil {
-		fmt.Print(user)
-		log.Fatal("user not found for given id to create task")
+	userCh := make(chan UserResult)
+	projectCh := make(chan ProjectResult)
+	taskCh := make(chan TaskResult)
+
+	var wg sync.WaitGroup
+	fmt.Print("before")
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		userResult := userService.GetUserWithChannel(userID)
+		userCh <- userResult
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		projectResult := projectService.GetProjectWithChannel(task.ProjectId)
+		projectCh <- projectResult
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		taskResult := taskService.GetTaskWithChannel(task.ID)
+		taskCh <- taskResult
+	}()
+
+	userResult := <-userCh
+	projectResult := <-projectCh
+	taskResult := <-taskCh
+
+	wg.Wait()
+	close(userCh)
+	close(projectCh)
+	close(taskCh)
+
+	fmt.Print("after")
+
+	if userResult.err != nil {
+		fmt.Print(userResult)
+		return errors.New("user not found for given id to create task"), false
 	}
 
-	err, project := projectService.GetProject(task.ProjectId)
-	if err != nil {
-		log.Fatal("user not found for given id to create task")
+	if projectResult.err != nil {
+		return errors.New("project not found for given id to create task"), false
 	}
+
+	if taskResult.err == nil {
+		fmt.Print(taskResult)
+		return errors.New("task already exists"), false
+	}
+
 	DemoTask := &Task{
 		ID:          task.ID,
 		Description: task.Description,
 		IsBillable:  task.IsBillable,
 		UserId:      task.UserId,
-		ProjectId:   project.ID,
-	}
-
-	taskErr, _ := taskService.GetTask(DemoTask.ID)
-	if taskErr == nil {
-		return errors.New("task already exists"), false
+		ProjectId:   projectResult.project.ID,
 	}
 
 	res := ts.Db.Model(&Task{}).Create(&DemoTask)
@@ -62,13 +105,21 @@ func (ts *TaskServiceManager) CreateTask(task *TaskCreateType, srv *ServiceManag
 	return nil, true
 }
 
-func (ts *TaskServiceManager) GetTask(id int) (error, *Task) {
-	var task *Task
+func (ts *TaskServiceManager) GetTask(id int) (error, Task) {
+	var task Task
 	if err := ts.Db.Model(&task).Preload("Project").Preload("User").Where("id = ?", id).First(&task); err.Error != nil {
-		return errors.New("didnt find task"), &Task{}
+		return errors.New("didnt find task"), Task{}
 	}
 
 	return nil, task
+}
+
+func (ts *TaskServiceManager) GetTaskWithChannel(
+	id int,
+) TaskResult {
+	taskResult := TaskResult{}
+	taskResult.err, taskResult.task = ts.GetTask(id)
+	return taskResult
 }
 
 func (ts *TaskServiceManager) DeleteTask(id int) (error, Task) {

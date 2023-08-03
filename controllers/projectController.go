@@ -55,8 +55,9 @@ func GetProject(srvMananger *ServiceManager, db *gorm.DB) gin.HandlerFunc {
 		projectId := ctx.Param("projectId")
 		id, err := strconv.Atoi(projectId)
 		if err != nil {
-			// ... handle error
-			panic(err)
+			ctx.JSON(400, gin.H{
+				"error": "didnt get projectId",
+			})
 		}
 
 		projectService := &ProjectServiceManager{
@@ -70,6 +71,7 @@ func GetProject(srvMananger *ServiceManager, db *gorm.DB) gin.HandlerFunc {
 				"success": "project created succesfully",
 				"Project": getProject,
 			})
+			return
 		}
 
 		log.Println(err, getProject)
@@ -84,8 +86,9 @@ func DeleteProject(srvMananger *ServiceManager, db *gorm.DB) gin.HandlerFunc {
 		projectId := ctx.Param("projectId")
 		id, err := strconv.Atoi(projectId)
 		if err != nil {
-			// ... handle error
-			panic(err)
+			ctx.JSON(400, gin.H{
+				"error": "didnt get projectId",
+			})
 		}
 
 		projectService := &ProjectServiceManager{
@@ -99,6 +102,7 @@ func DeleteProject(srvMananger *ServiceManager, db *gorm.DB) gin.HandlerFunc {
 				"success": "project deleted succesfully",
 				"Project": getProject,
 			})
+			return
 		}
 
 		log.Println(err, getProject)

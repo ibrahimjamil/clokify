@@ -17,6 +17,11 @@ type LoginType struct {
 	Password string
 }
 
+type UserResult struct {
+	err  error
+	user User
+}
+
 type UserServiceManager struct {
 	*ServiceManager
 }
@@ -132,6 +137,14 @@ func (s *UserServiceManager) GetUser(id int) (error, User) {
 	}
 
 	return nil, user
+}
+
+func (s *UserServiceManager) GetUserWithChannel(
+	id int,
+) UserResult {
+	userResult := UserResult{}
+	userResult.err, userResult.user = s.GetUser(id)
+	return userResult
 }
 
 func (s *UserServiceManager) GetUserByEmail(email string) (error, User) {

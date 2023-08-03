@@ -5,6 +5,7 @@ import (
 	routes "clokify/routes"
 	"fmt"
 	"log"
+	"sync"
 
 	. "clokify/config"
 
@@ -44,6 +45,17 @@ func main() {
 	router.Use(AuthMiddleware())
 	routes.AuthRoutes(router, db)
 
-	// app running on port
-	router.Run(":" + AppPort)
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		err := router.Run(":" + AppPort)
+		if err != nil {
+			log.Fatalf("Failed to start the server: %v", err)
+		}
+	}()
+
+	wg.Wait()
 }
