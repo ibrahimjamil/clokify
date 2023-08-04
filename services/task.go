@@ -45,25 +45,13 @@ func (ts *TaskServiceManager) CreateTask(task *TaskCreateType, srv *ServiceManag
 	fmt.Print("before")
 
 	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		userResult := userService.GetUserWithChannel(userID)
-		userCh <- userResult
-	}()
+	go userService.GetUserWithChannel(userID, userCh, &wg)
 
 	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		projectResult := projectService.GetProjectWithChannel(task.ProjectId)
-		projectCh <- projectResult
-	}()
+	go projectService.GetProjectWithChannel(task.ProjectId, projectCh, &wg)
 
 	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		taskResult := taskService.GetTaskWithChannel(task.ID)
-		taskCh <- taskResult
-	}()
+	go taskService.GetTaskWithChannel(task.ID, taskCh, &wg)
 
 	userResult := <-userCh
 	projectResult := <-projectCh
@@ -116,10 +104,14 @@ func (ts *TaskServiceManager) GetTask(id int) (error, Task) {
 
 func (ts *TaskServiceManager) GetTaskWithChannel(
 	id int,
-) TaskResult {
+	ch chan TaskResult,
+	wg *sync.WaitGroup,
+) {
+	defer wg.Done()
 	taskResult := TaskResult{}
 	taskResult.err, taskResult.task = ts.GetTask(id)
-	return taskResult
+	ch <- taskResult
+	return
 }
 
 func (ts *TaskServiceManager) DeleteTask(id int) (error, Task) {

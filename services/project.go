@@ -86,10 +86,14 @@ func (ps *ProjectServiceManager) GetProject(id int) (error, Project) {
 
 func (ps *ProjectServiceManager) GetProjectWithChannel(
 	id int,
-) ProjectResult {
+	ch chan ProjectResult,
+	wg *sync.WaitGroup,
+) {
+	defer wg.Done()
 	projectResult := ProjectResult{}
 	projectResult.err, projectResult.project = ps.GetProject(id)
-	return projectResult
+	ch <- projectResult
+	return
 }
 
 func (ps *ProjectServiceManager) DeleteProject(id int) (error, Project) {

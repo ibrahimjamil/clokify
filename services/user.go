@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/mail"
+	"sync"
 
 	. "clokify/utils"
 
@@ -141,10 +142,14 @@ func (s *UserServiceManager) GetUser(id int) (error, User) {
 
 func (s *UserServiceManager) GetUserWithChannel(
 	id int,
-) UserResult {
+	ch chan UserResult,
+	wg *sync.WaitGroup,
+) {
+	defer wg.Done()
 	userResult := UserResult{}
 	userResult.err, userResult.user = s.GetUser(id)
-	return userResult
+	ch <- userResult
+	return
 }
 
 func (s *UserServiceManager) GetUserByEmail(email string) (error, User) {
