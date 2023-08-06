@@ -20,3 +20,11 @@ type Task struct {
 func GetTaskStruct() *Task {
 	return &Task{}
 }
+
+type TaskCreateType struct {
+	ID          int    `json:"ID" binding:"required"`
+	Description string `json:"Description" binding:"required"`
+	IsBillable  bool   `json:"IsBillable" binding:"required"`
+	UserId      string `json:"UserId" binding:"required"`
+	ProjectId   int    `json:"ProjectId" binding:"required"`
+}

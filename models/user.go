@@ -1,22 +1,11 @@
 package models
 
-import "database/sql/driver"
-
 type UserType string
 
 const (
 	DEVELOPER UserType = "DEVELOPER"
 	CLIENT    UserType = "CLIENT"
 )
-
-func (ct *UserType) Scan(value interface{}) error {
-	*ct = UserType(value.([]byte))
-	return nil
-}
-
-func (ct UserType) Value() (driver.Value, error) {
-	return string(ct), nil
-}
 
 type User struct {
 	ID       int
@@ -29,4 +18,12 @@ type User struct {
 
 func GetUserStruct() *User {
 	return &User{}
+}
+
+type UserRegistrationType struct {
+	ID       int      `json:"id" binding:"required"`
+	Name     string   `json:"name" binding:"required"`
+	Email    string   `json:"email" binding:"required"`
+	Password string   `json:"password" binding:"required"`
+	Type     UserType `sql:"type:ENUM('DEVELOPER', 'CLIENT')" gorm:"column:user_type"`
 }
