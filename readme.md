@@ -1,5 +1,5 @@
 # clockify app
-its a simple app that test basic clockify app task creation functionality in go
+its an app that test basic clockify app task creation functionality in go
 
 # languages
 go
